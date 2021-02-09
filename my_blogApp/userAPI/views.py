@@ -1,35 +1,40 @@
-# from django.shortcuts import render
-# from .serializers import UserProfileSerializer, UserSerializer
-# from rest_framework import viewsets, status
-# from rest_framework.generics import GenericAPIView
-# from rest_framework.response import Response
+from django.shortcuts import render
+from .serializers import UserSerializer
+from .models import Account
+from rest_framework import viewsets, status
+from rest_framework.generics import GenericAPIView
+from rest_framework.response import Response
+from rest_framework.authtoken.models import Token
 
 
-# class UserCreateView(GenericAPIView):
-#     def post(self, request):
-#         data = request.data
-#         user_data = {
-#             'username': data['username'],
-#             'password': data['password']
-#         }
-#         user_serializer = UserSerializer(data=user_data)
-#         user_serializer.is_valid(raise_exception=True)
-#         user = user_serializer.save()
+class UserDetailAPI(GenericAPIView):
+    def post(self, request):
+        data = request.data
+        token = data['token']
+        obj = Token.objects.get(key=token)
 
-#         profile_data = {
-#             'user': user.id,
-#             'first_name': data['first_name'],
-#             'last_name': data['last_name'],
-#             'email': data['email'],
-#             'date_of_birth': data['date_of_birth'],
-#             'about': data['about'],
-#             'mobile': data['mobile']
-#         }
-#         profile_serializer = UserProfileSerializer(data=profile_data)
-#         profile_serializer.is_valid(raise_exception=True)
-#         profile_serializer.save()
-
-#         return Response({'user': user_serializer.data, 'profile': profile_serializer.data})
+        user = obj.user
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class UserUpdateAPI(GenericAPIView):
+    def post(self, request):
+        data = request.data
+        
+        if ('username' in data) or ('password' in data):
+            return Response({'detail': 'Username or Password can\'t be change.'}, status=status.HTTP_400_BAD_REQUEST)
 
+        id = data['id']
+        user = Account.objects.get(id=id)
+        
+        user.first_name = data.get('first_name', user.first_name)
+        user.last_name = data.get('last_name', user.last_name)
+        user.email = data.get('email', user.email)
+        user.mobile_no = data.get('mobile_no', user.mobile_no)
+        user.date_of_birth = data.get('date_of_birth', user.date_of_birth)
+        user.image = data.get('image', user.image)
+
+        user.save()        
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)

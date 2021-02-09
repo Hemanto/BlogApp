@@ -41,9 +41,6 @@ INSTALLED_APPS = [
 
     'corsheaders',
 
-    'ckeditor',
-    'taggit',
-
     'rest_framework',
     'rest_framework.authtoken',
     'rest_auth',
@@ -55,7 +52,6 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
 
     'userAPI',
-    'blogAPI',
 ]
 
 MIDDLEWARE = [
