@@ -25,8 +25,8 @@ class UserUpdateAPI(GenericAPIView):
         if ('username' in data) or ('password' in data):
             return Response({'detail': 'Username or Password can\'t be change.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        id = data['id']
-        user = Account.objects.get(id=id)
+        token = Token.objects.get(key=data['token'])
+        user = token.user
         
         user.first_name = data.get('first_name', user.first_name)
         user.last_name = data.get('last_name', user.last_name)
@@ -38,3 +38,5 @@ class UserUpdateAPI(GenericAPIView):
         user.save()        
         serializer = UserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
